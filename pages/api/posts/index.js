@@ -3,16 +3,8 @@ import {
   createNewPost,
   getAllPosts,
 } from "../../../backend/controllers/postController";
+import { Protect } from "../../../backend/controllers/userController";
 
-const handler = nc()
-  //   .use(protect)
-  .get(getAllPosts)
-  .post(createNewPost)
-  .put(async (req, res) => {
-    res.end("async/await is also supported!");
-  })
-  .patch(async (req, res) => {
-    throw new Error("Throws me around! Error can be caught and handled.");
-  });
+const handler = nc().get(getAllPosts).use(Protect).post(createNewPost);
 
 export default handler;

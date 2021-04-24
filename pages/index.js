@@ -1,7 +1,27 @@
 import Head from "next/head";
 import { Container, useColorMode, Button } from "@chakra-ui/react";
+import axios from "axios";
+import React, { useState, useEffect } from "react";
+import { Skeleton, SkeletonCircle, SkeletonText } from "@chakra-ui/react";
 
-export default function Home() {
+export default function HomePage() {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  async function getPosts() {
+    try {
+      setLoading(true);
+      const res = await axios.get("/api/posts");
+      console.log(res.data);
+      setPosts(res.data);
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
+  }
+  useEffect(() => {
+    getPosts();
+  }, []);
   const { colorMode, toggleColorMode } = useColorMode();
   return (
     <>
@@ -10,16 +30,32 @@ export default function Home() {
       </Head>
 
       <Container maxW="container.xl">
+        <div className="logo">LOGO</div>
         <Button onClick={toggleColorMode}>
           Toggle {colorMode === "light" ? "Dark" : "Light"}
         </Button>
-        <p>
-          There are many benefits to a joint design and development system. Not
-          only does it bring benefits to the design team, but it also brings
-          benefits to engineering teams. It makes sure that our experiences have
-          a consistent look and feel, not just in our design specs, but in
-          production
-        </p>
+        {loading ? (
+          <>
+            <Skeleton mt="4" width="40%" height="20px" />
+            <Skeleton mt="4" width="40%" height="20px" />
+            <Skeleton mt="4" width="40%" height="20px" />
+            <Skeleton mt="4" width="40%" height="20px" />
+            <Skeleton mt="4" width="40%" height="20px" />
+            <Skeleton mt="4" width="40%" height="20px" />
+            <Skeleton mt="4" width="40%" height="20px" />
+            <Skeleton mt="4" width="40%" height="20px" />
+            <Skeleton mt="4" width="40%" height="20px" />
+            <Skeleton mt="4" width="40%" height="20px" />
+          </>
+        ) : (
+          <>
+            {posts.map((post, index) => (
+              <div key={index}>
+                <h1 style={{ marginTop: 20 }}> {post.title} </h1>
+              </div>
+            ))}
+          </>
+        )}
       </Container>
     </>
   );
