@@ -1,21 +1,27 @@
 import Head from "next/head";
-import { Container, useColorMode, Button } from "@chakra-ui/react";
 import axios from "axios";
-import React, { useState, useEffect } from "react";
-import { Skeleton, SkeletonCircle, SkeletonText } from "@chakra-ui/react";
+import { useState, useEffect } from "react";
+import {
+  Container,
+  useColorMode,
+  Button,
+  Box,
+  Heading,
+} from "@chakra-ui/react";
+import SkeletonComponentForPost from "../components/skeleton";
+import Link from "next/link";
 
 export default function HomePage() {
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   async function getPosts() {
     try {
-      setLoading(true);
-      const res = await axios.get("/api/posts");
+      const res = await axios.get(`/posts?limit=10`);
       console.log(res.data);
       setPosts(res.data);
-      setLoading(false);
     } catch (error) {
       console.error(error);
+    } finally {
       setLoading(false);
     }
   }
@@ -23,6 +29,7 @@ export default function HomePage() {
     getPosts();
   }, []);
   const { colorMode, toggleColorMode } = useColorMode();
+
   return (
     <>
       <Head>
@@ -30,32 +37,31 @@ export default function HomePage() {
       </Head>
 
       <Container maxW="container.xl">
-        <div className="logo">LOGO</div>
         <Button onClick={toggleColorMode}>
           Toggle {colorMode === "light" ? "Dark" : "Light"}
         </Button>
-        {loading ? (
-          <>
-            <Skeleton mt="4" width="40%" height="20px" />
-            <Skeleton mt="4" width="40%" height="20px" />
-            <Skeleton mt="4" width="40%" height="20px" />
-            <Skeleton mt="4" width="40%" height="20px" />
-            <Skeleton mt="4" width="40%" height="20px" />
-            <Skeleton mt="4" width="40%" height="20px" />
-            <Skeleton mt="4" width="40%" height="20px" />
-            <Skeleton mt="4" width="40%" height="20px" />
-            <Skeleton mt="4" width="40%" height="20px" />
-            <Skeleton mt="4" width="40%" height="20px" />
-          </>
-        ) : (
-          <>
-            {posts.map((post, index) => (
-              <div key={index}>
-                <h1 style={{ marginTop: 20 }}> {post.title} </h1>
-              </div>
-            ))}
-          </>
-        )}
+
+        {loading && <SkeletonComponentForPost number={10} />}
+
+        {posts.map((post, index) => (
+          <div key={index}>
+            <Box
+              w="100%"
+              p={4}
+              mt={3}
+              borderWidth="1px"
+              borderRadius="lg"
+              overflow="hidden"
+            >
+              <Heading as="h4" size="md">
+                {post.title}
+              </Heading>
+              <Link href={`/posts/${post.slug}`}>
+                <a>read more</a>
+              </Link>
+            </Box>
+          </div>
+        ))}
       </Container>
     </>
   );
